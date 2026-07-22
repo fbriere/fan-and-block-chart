@@ -23,14 +23,15 @@ sample.png: $(IMAGES)
 		\( disc.png -virtual-pixel background -background none -distort SRT 30 \) \
 		-gravity south -composite -resize '15%' $@
 
+# For --engine=internal : https://gitlab.mister-muffin.de/josch/img2pdf/issues/150
 chart-%.pdf: $(IMAGES)
 	@WORKDIR="$$(mktemp -d "$${TMPDIR:-/tmp}/fan-and-block.XXXXXXXX")"; \
 		[ "$$WORKDIR" ] && \
 		for f in fan.png disc.png; do \
-			convert $$f -background white -alpha remove -alpha off "$$WORKDIR/$$f" || exit 1; \
+			convert -strip $$f -background white -alpha remove -alpha off "$$WORKDIR/$$f" || exit 1; \
 		done && \
 		convert "$$WORKDIR/fan.png" -rotate 270 "$$WORKDIR/fan-rotated.png" && \
-		img2pdf --nodate -S $* -s 150dpi "$$WORKDIR/fan-rotated.png" "$$WORKDIR/disc.png" --output $@ && \
+		img2pdf --engine=internal --nodate -S $* -s 150dpi "$$WORKDIR/fan-rotated.png" "$$WORKDIR/disc.png" --output $@ && \
 		rm -rf "$$WORKDIR"
 
 .PHONY: all
